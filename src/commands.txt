@@ -2,5 +2,7 @@ git commit -m "Corrected a typo in AppRunner.java"
 git add commands.txt
 git commit -m "Added used commands to commands.txt"
 git status
-
-
+git add PaymentDevice.java
+git add BillAcceptor.java
+git commit -m "Created PaymentDevice.java and BillAcceptor.java"
+git add BillValueException.java
