@@ -60,7 +60,7 @@ public class AppRunner {
                 case 0:
                     if (currentAmount < 25) {
                         System.out.println("Недостаточно денег для покупки, введите еще");
-
+                        continue;
                     } else {
                         continueInserting = false;
                     }
@@ -84,6 +84,8 @@ public class AppRunner {
         print("В автомате доступны:");
         showProducts(products);
         insertMoney();
+
+        print("Выберите продукт, который хотите купить:");
 
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
         allowProducts.addAll(getAllowedProducts().toArray());

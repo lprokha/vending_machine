@@ -7,3 +7,6 @@ git add BillAcceptor.java
 git commit -m "Created PaymentDevice.java and BillAcceptor.java"
 git add BillValueException.java
 git commit -m "Changed BillValueException to MoneyValueException, added method acceptPayment to CoinAcceptor.java"
+git push origin home_work_25
+git commit -m "Modified method startSimulation in AppRunner.java"
+git push origin home_work_25
