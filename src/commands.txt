@@ -6,3 +6,4 @@ git add PaymentDevice.java
 git add BillAcceptor.java
 git commit -m "Created PaymentDevice.java and BillAcceptor.java"
 git add BillValueException.java
+git commit -m "Changed BillValueException to MoneyValueException, added method acceptPayment to CoinAcceptor.java"
