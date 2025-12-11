@@ -3,15 +3,18 @@ import model.*;
 import util.UniversalArray;
 import util.UniversalArrayImpl;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class AppRunner {
 
     private final UniversalArray<Product> products = new UniversalArrayImpl<>();
 
-    private final CoinAcceptor coinAcceptor;
+    private final UniversalArray<PaymentDevice> paymentDevices = new UniversalArrayImpl<>();
 
     private static boolean isExit = false;
+
+    private int currentAmount = 0;
 
     private AppRunner() {
         products.addAll(new Product[]{
@@ -22,7 +25,8 @@ public class AppRunner {
                 new Mars(ActionLetter.F, 80),
                 new Pistachios(ActionLetter.G, 130)
         });
-        coinAcceptor = new CoinAcceptor(100);
+        paymentDevices.add(new CoinAcceptor());
+        paymentDevices.add(new BillAcceptor());
     }
 
     public static void run() {
@@ -32,11 +36,56 @@ public class AppRunner {
         }
     }
 
+    private void insertMoney() {
+        Scanner sc = new Scanner(System.in);
+        boolean continueInserting = true;
+        while (continueInserting) {
+            System.out.println("\nТекущая сумма: " + currentAmount);
+            System.out.println("Что вы хотите ввести? " +
+                    "\n\t1 - Монеты" +
+                    "\n\t2 - Купюры" +
+                    "\n\t0 - Закончить ввод");
+            System.out.print("Ваш выбор: ");
+
+            int choice;
+            try {
+                choice = sc.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Ошибка: введите число");
+                sc.nextLine();
+                continue;
+            }
+
+            switch (choice) {
+                case 0:
+                    if (currentAmount < 25) {
+                        System.out.println("Недостаточно денег для покупки, введите еще");
+                        continue;
+                    } else {
+                        continueInserting = false;
+                    }
+                    break;
+                case 1:
+                case 2:
+                    PaymentDevice device = paymentDevices.get(choice - 1);
+                    int payment = device.acceptPayment();
+                    currentAmount += payment;
+                    System.out.println("Вы ввели " + payment + ". Текущая сумма: " + currentAmount);
+                    break;
+                default:
+                    System.out.println("Ошибка: несуществующее действие, введите число снова");
+                    break;
+            }
+        }
+
+    }
+
     private void startSimulation() {
         print("В автомате доступны:");
         showProducts(products);
+        insertMoney();
 
-        print("Монет на сумму: " + coinAcceptor.getAmount());
+        print("Выберите продукт, который хотите купить:");
 
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
         allowProducts.addAll(getAllowedProducts().toArray());
@@ -47,7 +96,7 @@ public class AppRunner {
     private UniversalArray<Product> getAllowedProducts() {
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
         for (int i = 0; i < products.size(); i++) {
-            if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
+            if (currentAmount >= products.get(i).getPrice()) {
                 allowProducts.add(products.get(i));
             }
         }
@@ -55,19 +104,13 @@ public class AppRunner {
     }
 
     private void chooseAction(UniversalArray<Product> products) {
-        print(" a - Пополнить баланс");
         showActions(products);
         print(" h - Выйти");
         String action = fromConsole().substring(0, 1);
-        if ("a".equalsIgnoreCase(action)) {
-            coinAcceptor.setAmount(coinAcceptor.getAmount() + 10);
-            print("Вы пополнили баланс на 10");
-            return;
-        }
         try {
             for (int i = 0; i < products.size(); i++) {
                 if (products.get(i).getActionLetter().equals(ActionLetter.valueOf(action.toUpperCase()))) {
-                    coinAcceptor.setAmount(coinAcceptor.getAmount() - products.get(i).getPrice());
+                    currentAmount -= products.get(i).getPrice();
                     print("Вы купили " + products.get(i).getName());
                     break;
                 }
@@ -76,13 +119,14 @@ public class AppRunner {
             if ("h".equalsIgnoreCase(action)) {
                 isExit = true;
             } else {
-                print("Недопустимая буква. Попрбуйте еще раз.");
+                print("Недопустимая буква. Попробуйте еще раз.");
                 chooseAction(products);
             }
         }
 
 
     }
+
 
     private void showActions(UniversalArray<Product> products) {
         for (int i = 0; i < products.size(); i++) {
